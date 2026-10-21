@@ -31,6 +31,7 @@ export class Photos {
   protected readonly done = computed(() => this.nextIndex() >= this.api.pageCount);
 
   constructor() {
+    this.api.reshuffle();
     this.loadMore();
   }
 

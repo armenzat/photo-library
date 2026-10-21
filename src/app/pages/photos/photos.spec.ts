@@ -13,6 +13,7 @@ describe('Photos', () => {
   let el: HTMLElement;
   let requests: Subject<Photo[]>[];
   let getPage: ReturnType<typeof vi.fn>;
+  let reshuffle: ReturnType<typeof vi.fn>;
 
   const PAGE_COUNT = 2;
 
@@ -37,6 +38,7 @@ describe('Photos', () => {
     localStorage.clear();
     MockIntersectionObserver.install();
     requests = [];
+    reshuffle = vi.fn();
     getPage = vi.fn(() => {
       const subject = new Subject<Photo[]>();
       requests.push(subject);
@@ -50,6 +52,7 @@ describe('Photos', () => {
           provide: PhotosApi,
           useValue: {
             pageCount: PAGE_COUNT,
+            reshuffle,
             getPage,
             photoUrl: (id: string, w: number, h: number) => `/img/${id}/${w}/${h}`,
           },
@@ -65,6 +68,13 @@ describe('Photos', () => {
   afterEach(() => {
     MockIntersectionObserver.uninstall();
     localStorage.clear();
+  });
+
+  it('should start a new random order before requesting the first page', () => {
+    expect(reshuffle).toHaveBeenCalledTimes(1);
+    expect(reshuffle.mock.invocationCallOrder[0]).toBeLessThan(
+      getPage.mock.invocationCallOrder[0],
+    );
   });
 
   it('should request the first page of the stream on creation', () => {

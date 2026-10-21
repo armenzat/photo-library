@@ -16,15 +16,21 @@ const MIN_DELAY_MS = 200;
 const MAX_DELAY_MS = 300;
 const LIST_URL = `${environment.picsumBaseUrl}/v2/list`;
 
+const newPageOrder = (): number[] => shuffle(Array.from({ length: PAGE_COUNT }, (_, i) => i + 1));
+
 @Injectable({ providedIn: 'root' })
 export class PhotosApi {
   private readonly http = inject(HttpClient);
   // The catalog never changes, so the randomness has to come from us: visit the 33 pages in a
-  // shuffled order, once per service instance. Every page is shown exactly once, so no photo
-  // repeats and favorites and track ids stay unique.
-  private readonly pageOrder = shuffle(Array.from({ length: PAGE_COUNT }, (_, i) => i + 1));
+  // shuffled order. Every page is shown exactly once, so no photo repeats and favorites and
+  // track ids stay unique. The photos page asks for a new order each time it opens.
+  private pageOrder = newPageOrder();
 
   readonly pageCount = PAGE_COUNT;
+
+  reshuffle(): void {
+    this.pageOrder = newPageOrder();
+  }
 
   getPage(index: number): Observable<Photo[]> {
     const page = this.pageOrder[index];

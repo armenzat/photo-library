@@ -79,6 +79,24 @@ describe('PhotosApi', () => {
     expect(second).toBe(first);
   });
 
+  it('should visit the pages in a different order after reshuffling', () => {
+    const before = Array.from({ length: api.pageCount }, (_, i) => requestedPage(i));
+
+    api.reshuffle();
+    const after = Array.from({ length: api.pageCount }, (_, i) => requestedPage(i));
+
+    expect(after).not.toEqual(before);
+  });
+
+  it('should still visit every page from 1 to 33 exactly once after reshuffling', () => {
+    api.reshuffle();
+    const pages = Array.from({ length: api.pageCount }, (_, i) => requestedPage(i));
+
+    expect([...pages].sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 33 }, (_, i) => i + 1),
+    );
+  });
+
   it('should return an empty list without a request past the last page', () => {
     const next = vi.fn();
 
