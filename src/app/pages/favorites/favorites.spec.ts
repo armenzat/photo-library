@@ -1,9 +1,13 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 
 import { FavoritesService } from '../../services/favorites';
 import { PhotosApi } from '../../services/photos-api';
 import { Favorites } from './favorites';
+
+@Component({ template: '' })
+class Blank {}
 
 describe('Favorites', () => {
   let fixture: ComponentFixture<Favorites>;
@@ -19,7 +23,7 @@ describe('Favorites', () => {
     TestBed.configureTestingModule({
       imports: [Favorites],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'photos/:id', component: Blank }]),
         {
           provide: PhotosApi,
           useValue: { photoUrl: (id: string, w: number, h: number) => `/img/${id}/${w}/${h}` },
@@ -54,6 +58,15 @@ describe('Favorites', () => {
     await open(['1', '2']);
 
     expect(el.querySelectorAll('.favorite')).toHaveLength(0);
+  });
+
+  it('should open the single photo page when a photo is clicked', async () => {
+    await open(['9', '2']);
+
+    cards()[1].querySelector('button')!.click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/photos/2');
   });
 
   it('should drop a photo that is removed from the favorites', async () => {
