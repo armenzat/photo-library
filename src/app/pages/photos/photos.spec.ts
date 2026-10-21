@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 
 import { MockIntersectionObserver } from '../../../testing/mock-intersection-observer';
 import { Photo } from '../../models/photo.model';
+import { FavoritesService } from '../../services/favorites';
 import { PhotosApi } from '../../services/photos-api';
 import { Photos } from './photos';
 
@@ -32,6 +34,7 @@ describe('Photos', () => {
   };
 
   beforeEach(async () => {
+    localStorage.clear();
     MockIntersectionObserver.install();
     requests = [];
     getPage = vi.fn(() => {
@@ -59,7 +62,10 @@ describe('Photos', () => {
     await fixture.whenStable();
   });
 
-  afterEach(() => MockIntersectionObserver.uninstall());
+  afterEach(() => {
+    MockIntersectionObserver.uninstall();
+    localStorage.clear();
+  });
 
   it('should request the first page of the stream on creation', () => {
     expect(getPage).toHaveBeenCalledExactlyOnceWith(0);
@@ -164,5 +170,48 @@ describe('Photos', () => {
     fixture.destroy();
 
     expect(requests.at(-1)!.observed).toBe(false);
+  });
+  describe('favorites', () => {
+    let snackBar: MatSnackBar;
+    let favorites: FavoritesService;
+
+    const cardButtons = () => Array.from(el.querySelectorAll<HTMLButtonElement>('app-photo-card button'));
+
+    beforeEach(async () => {
+      snackBar = TestBed.inject(MatSnackBar);
+      favorites = TestBed.inject(FavoritesService);
+      vi.spyOn(snackBar, 'open');
+      await respond(['3', '4']);
+    });
+
+    it('should add a clicked photo to the favorites and confirm it', async () => {
+      cardButtons()[0].click();
+      await fixture.whenStable();
+
+      expect([...favorites.ids()]).toEqual(['3']);
+      expect(snackBar.open).toHaveBeenCalledWith('Added to favorites', undefined, expect.anything());
+    });
+
+    it('should not add a photo twice and say so', async () => {
+      cardButtons()[0].click();
+      await fixture.whenStable();
+      cardButtons()[0].click();
+      await fixture.whenStable();
+
+      expect([...favorites.ids()]).toEqual(['3']);
+      expect(snackBar.open).toHaveBeenLastCalledWith(
+        'Already in favorites',
+        undefined,
+        expect.anything(),
+      );
+    });
+
+    it('should keep the order in which photos were added', async () => {
+      cardButtons()[1].click();
+      cardButtons()[0].click();
+      await fixture.whenStable();
+
+      expect([...favorites.ids()]).toEqual(['4', '3']);
+    });
   });
 });

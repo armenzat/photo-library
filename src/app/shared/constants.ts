@@ -1,0 +1,1 @@
+export const SNACK_BAR_DURATION_MS = 2000;
