@@ -1,0 +1,15 @@
+@if (!isFavorite() || failed()) {
+  <div class="not-found">
+    <p>Image not found in favorites</p>
+    <p>Add the image to favorites first</p>
+    <a matButton="outlined" routerLink="/">Browse photos</a>
+  </div>
+} @else {
+  <div class="photo">
+    <img [src]="src()" [alt]="'Photo ' + id()" (error)="failed.set(true)" />
+    <button matButton="tonal" class="remove" (click)="remove()">
+      <mat-icon fontSet="material-symbols-outlined">heart_broken</mat-icon>
+      Remove from favorites
+    </button>
+  </div>
+}
