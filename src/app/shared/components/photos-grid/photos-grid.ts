@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 
 import { Photo } from '../../../models/photo.model';
 import { PRIORITY_IMAGE_COUNT } from '../../constants';
@@ -17,4 +17,7 @@ export class PhotosGrid {
   readonly photoSelected = output<Photo>();
 
   protected readonly priorityCount = PRIORITY_IMAGE_COUNT;
+  protected readonly items = computed(() =>
+    this.photos().map((photo) => ({ photo, favorite: this.favoriteIds().has(photo.id) })),
+  );
 }

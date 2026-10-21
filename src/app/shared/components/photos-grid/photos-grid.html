@@ -1,10 +1,10 @@
 <div class="grid">
-  @for (photo of photos(); track photo.id; let index = $index) {
+  @for (item of items(); track item.photo.id; let index = $index) {
     <app-photo-card
-      [photo]="photo"
-      [favorite]="favoriteIds().has(photo.id)"
+      [photo]="item.photo"
+      [favorite]="item.favorite"
       [priority]="index < priorityCount"
-      (selected)="photoSelected.emit(photo)"
+      (selected)="photoSelected.emit(item.photo)"
     />
   }
 </div>
