@@ -48,8 +48,8 @@ describe('Photos', () => {
     fixture.detectChanges();
   });
 
-  it('should request the first page on creation', () => {
-    expect(getPage).toHaveBeenCalledExactlyOnceWith(1);
+  it('should request the first page of the stream on creation', () => {
+    expect(getPage).toHaveBeenCalledExactlyOnceWith(0);
   });
 
   it('should show only the loader while loading', () => {
@@ -78,7 +78,7 @@ describe('Photos', () => {
     expect(spinner()).toBeNull();
   });
 
-  it('should request the same page again on retry', () => {
+  it('should request the same page of the stream again on retry', () => {
     requests.at(-1)!.error(new Error('boom'));
     fixture.detectChanges();
 
@@ -86,7 +86,7 @@ describe('Photos', () => {
     fixture.detectChanges();
     respond(['7']);
 
-    expect(getPage).toHaveBeenNthCalledWith(2, 1);
+    expect(getPage).toHaveBeenNthCalledWith(2, 0);
     expect(images()).toHaveLength(1);
     expect(el.textContent).not.toContain('Failed to load photos');
   });

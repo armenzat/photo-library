@@ -15,7 +15,7 @@ import { PhotosApi } from '../../services/photos-api';
 export class Photos {
   private readonly api = inject(PhotosApi);
   private readonly destroyRef = inject(DestroyRef);
-  private page = 1;
+  private nextIndex = 0;
 
   protected readonly photos = signal<Photo[]>([]);
   protected readonly loading = signal(false);
@@ -34,12 +34,12 @@ export class Photos {
     this.failed.set(false);
 
     this.api
-      .getPage(this.page)
+      .getPage(this.nextIndex)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (batch) => {
           this.photos.update((photos) => [...photos, ...batch]);
-          this.page++;
+          this.nextIndex++;
           this.loading.set(false);
         },
         error: () => {

@@ -1,10 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-
 import { environment } from '../../environments/environment';
 import { Photo, PicsumPhoto } from '../models/photo.model';
 import { PhotosApi } from './photos-api';
+
+const LIST_URL = `${environment.picsumBaseUrl}/v2/list`;
 
 const picsumPhoto = (id: string): PicsumPhoto => ({
   id,
@@ -34,28 +35,63 @@ describe('PhotosApi', () => {
     vi.restoreAllMocks();
   });
 
-  const request = (page = 1, limit = 30) =>
-    http.expectOne(
-      (req) =>
-        req.url === `${environment.picsumBaseUrl}/v2/list` &&
-        req.params.get('page') === String(page) &&
-        req.params.get('limit') === String(limit),
-    );
+  const request = () => http.expectOne((req) => req.url === LIST_URL);
 
-  it('should request the requested page of the picsum list', () => {
-    api.getPage(3, 12).subscribe();
-    request(3, 12).flush([]);
+  const requestedPage = (index: number): number => {
+    api.getPage(index).subscribe();
+    const req = request();
+    const page = Number(req.request.params.get('page'));
+    req.flush([]);
+    vi.advanceTimersByTime(300);
+    return page;
+  };
+
+  it('should expose 33 full pages of 30 photos', () => {
+    expect(api.pageCount).toBe(33);
   });
 
-  it('should default to 30 photos per page', () => {
-    api.getPage(1).subscribe();
-    request(1, 30).flush([]);
+  it('should request 30 photos per page', () => {
+    api.getPage(0).subscribe();
+    const req = request();
+
+    expect(req.request.params.get('limit')).toBe('30');
+    req.flush([]);
+  });
+
+  it('should request every page from 1 to 33 exactly once over a full lap', () => {
+    const pages = Array.from({ length: api.pageCount }, (_, i) => requestedPage(i));
+
+    expect([...pages].sort((a, b) => a - b)).toEqual(
+      Array.from({ length: 33 }, (_, i) => i + 1),
+    );
+  });
+
+  it('should never request the short last page', () => {
+    const pages = Array.from({ length: api.pageCount }, (_, i) => requestedPage(i));
+
+    expect(pages).not.toContain(34);
+  });
+
+  it('should request the same page for the same index', () => {
+    const first = requestedPage(5);
+    const second = requestedPage(5);
+
+    expect(second).toBe(first);
+  });
+
+  it('should return an empty list without a request past the last page', () => {
+    const next = vi.fn();
+
+    api.getPage(api.pageCount).subscribe(next);
+
+    expect(next).toHaveBeenCalledWith([]);
+    http.expectNone(LIST_URL);
   });
 
   it('should map the response to ids only', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     let result: Photo[] | undefined;
-    api.getPage(1).subscribe((photos) => (result = photos));
+    api.getPage(0).subscribe((photos) => (result = photos));
     request().flush([picsumPhoto('3'), picsumPhoto('4')]);
     vi.advanceTimersByTime(200);
 
@@ -65,7 +101,7 @@ describe('PhotosApi', () => {
   it('should delay the result by 200ms at the minimum', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const next = vi.fn();
-    api.getPage(1).subscribe(next);
+    api.getPage(0).subscribe(next);
     request().flush([]);
 
     vi.advanceTimersByTime(199);
@@ -77,7 +113,7 @@ describe('PhotosApi', () => {
   it('should delay the result by just under 300ms at the maximum', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.99);
     const next = vi.fn();
-    api.getPage(1).subscribe(next);
+    api.getPage(0).subscribe(next);
     request().flush([]);
 
     vi.advanceTimersByTime(298);
@@ -88,7 +124,7 @@ describe('PhotosApi', () => {
 
   it('should propagate http errors', () => {
     const error = vi.fn();
-    api.getPage(1).subscribe({ error });
+    api.getPage(0).subscribe({ error });
     request().flush('fail', { status: 500, statusText: 'Server Error' });
 
     expect(error).toHaveBeenCalledTimes(1);
