@@ -8,7 +8,7 @@ describe('PhotosGrid', () => {
   let fixture: ComponentFixture<PhotosGrid>;
   let el: HTMLElement;
 
-  const photos: Photo[] = [{ id: '1' }, { id: '2' }, { id: '3' }];
+  const photos: Photo[] = [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }];
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -27,13 +27,18 @@ describe('PhotosGrid', () => {
   });
 
   it('should render a card per photo', () => {
-    expect(el.querySelectorAll('app-photo-card')).toHaveLength(3);
+    expect(el.querySelectorAll('app-photo-card')).toHaveLength(4);
   });
 
   it('should render the cards in the order of the photos', () => {
     const srcs = Array.from(el.querySelectorAll('img')).map((img) => img.getAttribute('src'));
 
-    expect(srcs).toEqual(['/img/1/400/600', '/img/2/400/600', '/img/3/400/600']);
+    expect(srcs).toEqual([
+      '/img/1/400/600',
+      '/img/2/400/600',
+      '/img/3/400/600',
+      '/img/4/400/600',
+    ]);
   });
 
   it('should mark only the favorite photos', () => {
@@ -41,11 +46,22 @@ describe('PhotosGrid', () => {
     fixture.detectChanges();
 
     const cards = Array.from(el.querySelectorAll('app-photo-card'));
-    expect(cards.map((card) => !!card.querySelector('.favorite'))).toEqual([false, true, false]);
+    expect(cards.map((card) => !!card.querySelector('.favorite'))).toEqual([
+      false,
+      true,
+      false,
+      false,
+    ]);
   });
 
   it('should not mark any photo by default', () => {
     expect(el.querySelectorAll('.favorite')).toHaveLength(0);
+  });
+
+  it('should load the images of the first row eagerly and the rest lazily', () => {
+    const loading = Array.from(el.querySelectorAll('img')).map((img) => img.getAttribute('loading'));
+
+    expect(loading).toEqual(['eager', 'eager', 'eager', 'lazy']);
   });
 
   it('should emit the photo of the clicked card', () => {

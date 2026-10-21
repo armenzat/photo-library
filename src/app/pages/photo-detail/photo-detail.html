@@ -6,7 +6,14 @@
   </div>
 } @else {
   <div class="photo">
-    <img [src]="src()" [alt]="'Photo ' + id()" (error)="failed.set(true)" />
+    <img
+      [ngSrc]="src()"
+      [alt]="'Photo ' + id()"
+      [width]="width"
+      [height]="height"
+      priority
+      (error)="failed.set(true)"
+    />
     <button matButton="tonal" class="remove" (click)="remove()">
       <mat-icon fontSet="material-symbols-outlined">heart_broken</mat-icon>
       Remove from favorites

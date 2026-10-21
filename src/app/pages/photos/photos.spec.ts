@@ -98,6 +98,13 @@ describe('Photos', () => {
     expect(spinner()).toBeNull();
   });
 
+  it('should load the first row of photos eagerly and the rest lazily', async () => {
+    await respond(['3', '4', '5', '6']);
+
+    const loading = images().map((img) => img.getAttribute('loading'));
+    expect(loading).toEqual(['eager', 'eager', 'eager', 'lazy']);
+  });
+
   it('should bring the sentinel back once a batch has loaded', async () => {
     await respond(['3']);
 

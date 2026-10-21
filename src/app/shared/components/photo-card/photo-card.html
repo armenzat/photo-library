@@ -1,11 +1,25 @@
 <button type="button" class="card" (click)="selected.emit()">
-  <img
-    [src]="src()"
-    [alt]="'Photo ' + photo().id"
-    [class.loaded]="loaded()"
-    (load)="loaded.set(true)"
-    loading="lazy"
-  />
+  <!-- NgOptimizedImage cannot change priority after render, so each value gets its own image. -->
+  @if (priority()) {
+    <img
+      [ngSrc]="src()"
+      [alt]="'Photo ' + photo().id"
+      [width]="width"
+      [height]="height"
+      priority
+      [class.loaded]="loaded()"
+      (load)="loaded.set(true)"
+    />
+  } @else {
+    <img
+      [ngSrc]="src()"
+      [alt]="'Photo ' + photo().id"
+      [width]="width"
+      [height]="height"
+      [class.loaded]="loaded()"
+      (load)="loaded.set(true)"
+    />
+  }
   @if (favorite()) {
     <span class="favorite" role="img" aria-label="In favorites">
       <mat-icon fontSet="material-symbols-outlined">favorite</mat-icon>

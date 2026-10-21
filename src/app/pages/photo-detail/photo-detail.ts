@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,7 +14,7 @@ const HEIGHT = 800;
 
 @Component({
   selector: 'app-photo-detail',
-  imports: [MatButtonModule, MatIconModule, RouterLink],
+  imports: [MatButtonModule, MatIconModule, NgOptimizedImage, RouterLink],
   templateUrl: './photo-detail.html',
   styleUrl: './photo-detail.scss',
 })
@@ -24,6 +25,9 @@ export class PhotoDetail {
   private readonly snackBar = inject(MatSnackBar);
 
   readonly id = input.required<string>();
+
+  protected readonly width = WIDTH;
+  protected readonly height = HEIGHT;
 
   protected readonly src = computed(() => this.api.photoUrl(this.id(), WIDTH, HEIGHT));
   protected readonly isFavorite = computed(() => this.favorites.ids().has(this.id()));

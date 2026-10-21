@@ -31,6 +31,40 @@ describe('PhotoCard', () => {
     expect(img().getAttribute('alt')).toBe('Photo 42');
   });
 
+  it('should give the image its intrinsic size', () => {
+    expect(img().getAttribute('width')).toBe('400');
+    expect(img().getAttribute('height')).toBe('600');
+  });
+
+  it('should load the image lazily by default', () => {
+    expect(img().getAttribute('loading')).toBe('lazy');
+    expect(img().getAttribute('fetchpriority')).not.toBe('high');
+  });
+
+  it('should load a priority image eagerly with high fetch priority', () => {
+    const priorityFixture = TestBed.createComponent(PhotoCard);
+    priorityFixture.componentRef.setInput('photo', { id: '42' });
+    priorityFixture.componentRef.setInput('priority', true);
+    priorityFixture.detectChanges();
+    const priorityImg = priorityFixture.nativeElement.querySelector('img');
+
+    expect(priorityImg.getAttribute('loading')).toBe('eager');
+    expect(priorityImg.getAttribute('fetchpriority')).toBe('high');
+  });
+
+  it('should switch to a priority image when priority changes after the first render', () => {
+    fixture.componentRef.setInput('priority', true);
+    fixture.detectChanges();
+
+    expect(img().getAttribute('loading')).toBe('eager');
+    expect(img().getAttribute('fetchpriority')).toBe('high');
+
+    fixture.componentRef.setInput('priority', false);
+    fixture.detectChanges();
+
+    expect(img().getAttribute('loading')).toBe('lazy');
+  });
+
   it('should reveal the image only after it has loaded', () => {
     expect(img().classList).not.toContain('loaded');
 

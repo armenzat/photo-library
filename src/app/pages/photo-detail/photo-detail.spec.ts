@@ -59,6 +59,15 @@ describe('PhotoDetail', () => {
     expect(img()?.getAttribute('src')).toBe('/img/42/1200/800');
   });
 
+  it('should load the photo eagerly with its intrinsic size', async () => {
+    await open('42');
+
+    expect(img()?.getAttribute('loading')).toBe('eager');
+    expect(img()?.getAttribute('fetchpriority')).toBe('high');
+    expect(img()?.getAttribute('width')).toBe('1200');
+    expect(img()?.getAttribute('height')).toBe('800');
+  });
+
   it('should show the remove button with a broken heart for a favorite photo', async () => {
     await open('42');
 

@@ -54,6 +54,23 @@ describe('Favorites', () => {
     expect(emptyState()).toBeNull();
   });
 
+  it('should load the first row of photos eagerly and the rest lazily', async () => {
+    await open(['1', '2', '3', '4']);
+
+    const loading = Array.from(el.querySelectorAll('img')).map((img) => img.getAttribute('loading'));
+    expect(loading).toEqual(['eager', 'eager', 'eager', 'lazy']);
+  });
+
+  it('should keep a photo that moves into the first row loading correctly', async () => {
+    await open(['1', '2', '3', '4']);
+
+    favorites.remove('1');
+    await fixture.whenStable();
+
+    const loading = Array.from(el.querySelectorAll('img')).map((img) => img.getAttribute('loading'));
+    expect(loading).toEqual(['eager', 'eager', 'eager']);
+  });
+
   it('should not show favorite badges', async () => {
     await open(['1', '2']);
 

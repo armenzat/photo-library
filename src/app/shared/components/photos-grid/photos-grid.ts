@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 
 import { Photo } from '../../../models/photo.model';
+import { PRIORITY_IMAGE_COUNT } from '../../constants';
 import { PhotoCard } from '../photo-card/photo-card';
 
 @Component({
@@ -13,4 +14,6 @@ export class PhotosGrid {
   readonly photos = input.required<readonly Photo[]>();
   readonly favoriteIds = input<ReadonlySet<string>>(new Set());
   readonly photoSelected = output<Photo>();
+
+  protected readonly priorityCount = PRIORITY_IMAGE_COUNT;
 }
