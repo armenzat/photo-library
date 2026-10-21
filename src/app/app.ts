@@ -4,10 +4,10 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
+    templateUrl: './app.html',
+    styleUrl: './app.scss',
     imports: [NgSwitch, NgSwitchDefault, NgSwitchCase, RouterOutlet]
 })
-export class AppComponent {
+export class App {
   title = 'gallery-template';
 }
