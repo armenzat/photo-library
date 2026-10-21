@@ -19,6 +19,9 @@ export class FavoritesService {
     if (!this.window) {
       return;
     }
+    // The browser fires `storage` in every other tab of this site when localStorage changes, never
+    // in the tab that made the change. Reloading here keeps all open tabs in sync, and a null key
+    // means the whole storage was cleared.
     fromEvent<StorageEvent>(this.window, 'storage')
       .pipe(
         filter((event) => event.key === FAVORITES_STORAGE_KEY || event.key === null),
