@@ -28,3 +28,11 @@ img {
   gap: 8px;
   padding: 32px;
 }
+
+.end {
+  margin: 0;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}

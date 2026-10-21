@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 
+import { MockIntersectionObserver } from '../../../testing/mock-intersection-observer';
 import { Photo } from '../../models/photo.model';
 import { PhotosApi } from '../../services/photos-api';
 import { Photos } from './photos';
@@ -11,18 +12,27 @@ describe('Photos', () => {
   let requests: Subject<Photo[]>[];
   let getPage: ReturnType<typeof vi.fn>;
 
-  const placeholders = () => el.querySelectorAll('.placeholder');
+  const PAGE_COUNT = 2;
+
+  const sentinel = () => el.querySelector('.sentinel');
+  const endMessage = () => el.querySelector('.end');
   const spinner = () => el.querySelector('mat-spinner');
   const images = () => Array.from(el.querySelectorAll('.grid img'));
   const retry = () => el.querySelector<HTMLButtonElement>('button');
 
-  const respond = (ids: string[]) => {
+  const respond = async (ids: string[]) => {
     requests.at(-1)!.next(ids.map((id) => ({ id })));
     requests.at(-1)!.complete();
-    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+
+  const scrollToBottom = async () => {
+    MockIntersectionObserver.active[0].trigger(true);
+    await fixture.whenStable();
   };
 
   beforeEach(async () => {
+    MockIntersectionObserver.install();
     requests = [];
     getPage = vi.fn(() => {
       const subject = new Subject<Photo[]>();
@@ -36,6 +46,7 @@ describe('Photos', () => {
         {
           provide: PhotosApi,
           useValue: {
+            pageCount: PAGE_COUNT,
             getPage,
             photoUrl: (id: string, w: number, h: number) => `/img/${id}/${w}/${h}`,
           },
@@ -45,8 +56,10 @@ describe('Photos', () => {
 
     fixture = TestBed.createComponent(Photos);
     el = fixture.nativeElement;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
+
+  afterEach(() => MockIntersectionObserver.uninstall());
 
   it('should request the first page of the stream on creation', () => {
     expect(getPage).toHaveBeenCalledExactlyOnceWith(0);
@@ -54,12 +67,12 @@ describe('Photos', () => {
 
   it('should show only the loader while loading', () => {
     expect(spinner()).toBeTruthy();
-    expect(placeholders()).toHaveLength(0);
     expect(images()).toHaveLength(0);
+    expect(sentinel()).toBeNull();
   });
 
-  it('should render an image per photo and hide the loader', () => {
-    respond(['3', '4', '5']);
+  it('should render an image per photo and hide the loader', async () => {
+    await respond(['3', '4', '5']);
 
     expect(images().map((img) => img.getAttribute('src'))).toEqual([
       '/img/3/400/600',
@@ -69,22 +82,76 @@ describe('Photos', () => {
     expect(spinner()).toBeNull();
   });
 
-  it('should show an error with a retry button when loading fails', () => {
+  it('should bring the sentinel back once a batch has loaded', async () => {
+    await respond(['3']);
+
+    expect(sentinel()).toBeTruthy();
+  });
+
+  it('should load the next page of the stream when the sentinel is reached', async () => {
+    await respond(['3']);
+    await scrollToBottom();
+
+    expect(getPage).toHaveBeenNthCalledWith(2, 1);
+    expect(spinner()).toBeTruthy();
+    expect(sentinel()).toBeNull();
+  });
+
+  it('should append the next batch after the current photos', async () => {
+    await respond(['3']);
+    await scrollToBottom();
+    await respond(['4', '5']);
+
+    expect(images().map((img) => img.getAttribute('src'))).toEqual([
+      '/img/3/400/600',
+      '/img/4/400/600',
+      '/img/5/400/600',
+    ]);
+  });
+
+  it('should not show the end message while more pages remain', async () => {
+    await respond(['3']);
+
+    expect(endMessage()).toBeNull();
+  });
+
+  it('should show the end message instead of the sentinel after the last page', async () => {
+    await respond(['3']);
+    await scrollToBottom();
+    await respond(['4']);
+
+    expect(endMessage()?.textContent).toContain('No more photos to load');
+    expect(sentinel()).toBeNull();
+    expect(spinner()).toBeNull();
+    expect(getPage).toHaveBeenCalledTimes(PAGE_COUNT);
+  });
+
+  it('should keep showing the loader for the last batch and only then the end message', async () => {
+    await respond(['3']);
+    await scrollToBottom();
+
+    expect(spinner()).toBeTruthy();
+    expect(endMessage()).toBeNull();
+  });
+
+  it('should show an error with a retry button when loading fails', async () => {
     requests.at(-1)!.error(new Error('boom'));
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(el.textContent).toContain('Failed to load photos');
     expect(retry()).toBeTruthy();
     expect(spinner()).toBeNull();
+    expect(sentinel()).toBeNull();
+    expect(endMessage()).toBeNull();
   });
 
-  it('should request the same page of the stream again on retry', () => {
+  it('should request the same page of the stream again on retry', async () => {
     requests.at(-1)!.error(new Error('boom'));
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     retry()!.click();
-    fixture.detectChanges();
-    respond(['7']);
+    await fixture.whenStable();
+    await respond(['7']);
 
     expect(getPage).toHaveBeenNthCalledWith(2, 0);
     expect(images()).toHaveLength(1);

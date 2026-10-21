@@ -1,25 +1,27 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { Photo } from '../../models/photo.model';
 import { PhotosApi } from '../../services/photos-api';
+import { InfiniteScroll } from '../../shared/directives/infinite-scroll/infinite-scroll';
 
 @Component({
   selector: 'app-photos',
-  imports: [MatButtonModule, MatProgressSpinnerModule],
+  imports: [InfiniteScroll, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './photos.html',
   styleUrl: './photos.scss',
 })
 export class Photos {
   private readonly api = inject(PhotosApi);
   private readonly destroyRef = inject(DestroyRef);
-  private nextIndex = 0;
+  private readonly nextIndex = signal(0);
 
   protected readonly photos = signal<Photo[]>([]);
   protected readonly loading = signal(false);
   protected readonly failed = signal(false);
+  protected readonly done = computed(() => this.nextIndex() >= this.api.pageCount);
 
   constructor() {
     this.loadMore();
@@ -30,16 +32,19 @@ export class Photos {
   }
 
   protected loadMore(): void {
+    if (this.loading() || this.done()) {
+      return;
+    }
     this.loading.set(true);
     this.failed.set(false);
 
     this.api
-      .getPage(this.nextIndex)
+      .getPage(this.nextIndex())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (batch) => {
           this.photos.update((photos) => [...photos, ...batch]);
-          this.nextIndex++;
+          this.nextIndex.update((index) => index + 1);
           this.loading.set(false);
         },
         error: () => {

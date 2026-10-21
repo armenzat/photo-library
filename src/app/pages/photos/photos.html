@@ -13,4 +13,8 @@
   <div class="status">
     <mat-spinner diameter="48" />
   </div>
+} @else if (!done()) {
+  <div class="sentinel" appInfiniteScroll (scrolled)="loadMore()"></div>
+} @else {
+  <p class="end">No more photos to load</p>
 }
