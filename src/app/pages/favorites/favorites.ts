@@ -1,8 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
+
+import { Photo } from '../../models/photo.model';
+import { FavoritesService } from '../../services/favorites';
+import { PhotosGrid } from '../../shared/components/photos-grid/photos-grid';
 
 @Component({
   selector: 'app-favorites',
+  imports: [MatButtonModule, PhotosGrid, RouterLink],
   templateUrl: './favorites.html',
   styleUrl: './favorites.scss',
 })
-export class Favorites {}
+export class Favorites {
+  private readonly favorites = inject(FavoritesService);
+
+  protected readonly photos = computed<Photo[]>(() =>
+    [...this.favorites.ids()].map((id) => ({ id })),
+  );
+}

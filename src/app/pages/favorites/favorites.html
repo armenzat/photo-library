@@ -1,0 +1,8 @@
+@if (photos().length) {
+  <app-photos-grid [photos]="photos()" />
+} @else {
+  <div class="empty">
+    <p>No favorites yet</p>
+    <a matButton="outlined" routerLink="/">Browse photos</a>
+  </div>
+}
