@@ -1,0 +1,25 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 599px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.placeholder {
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  background-color: var(--mat-sys-surface-container);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}

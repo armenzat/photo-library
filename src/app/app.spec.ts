@@ -25,4 +25,12 @@ describe('App', () => {
     expect(el.querySelector('app-header')).toBeTruthy();
     expect(el.querySelector('router-outlet')).toBeTruthy();
   });
+
+  it('should place the router outlet inside the main content area', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('main router-outlet')).toBeTruthy();
+  });
 });
