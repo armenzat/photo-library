@@ -8,6 +8,7 @@ describe('PhotoCard', () => {
   let el: HTMLElement;
 
   const img = () => el.querySelector('img')!;
+  const badge = () => el.querySelector('.favorite');
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -37,6 +38,26 @@ describe('PhotoCard', () => {
     fixture.detectChanges();
 
     expect(img().classList).toContain('loaded');
+  });
+
+  it('should not show the favorite badge by default', () => {
+    expect(badge()).toBeNull();
+  });
+
+  it('should show the favorite badge for a favorite photo', () => {
+    fixture.componentRef.setInput('favorite', true);
+    fixture.detectChanges();
+
+    expect(badge()).toBeTruthy();
+    expect(badge()?.querySelector('mat-icon')?.textContent?.trim()).toBe('favorite');
+  });
+
+  it('should label the favorite badge for assistive technology', () => {
+    fixture.componentRef.setInput('favorite', true);
+    fixture.detectChanges();
+
+    expect(badge()?.getAttribute('role')).toBe('img');
+    expect(badge()?.getAttribute('aria-label')).toBe('In favorites');
   });
 
   it('should emit selected when clicked', () => {

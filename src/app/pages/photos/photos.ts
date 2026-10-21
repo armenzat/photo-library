@@ -25,6 +25,7 @@ export class Photos {
   private readonly nextIndex = signal(0);
 
   protected readonly photos = signal<Photo[]>([]);
+  protected readonly favoriteIds = this.favorites.ids;
   protected readonly loading = signal(false);
   protected readonly failed = signal(false);
   protected readonly done = computed(() => this.nextIndex() >= this.api.pageCount);

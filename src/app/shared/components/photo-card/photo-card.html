@@ -6,4 +6,9 @@
     (load)="loaded.set(true)"
     loading="lazy"
   />
+  @if (favorite()) {
+    <span class="favorite" role="img" aria-label="In favorites">
+      <mat-icon fontSet="material-symbols-outlined">favorite</mat-icon>
+    </span>
+  }
 </button>

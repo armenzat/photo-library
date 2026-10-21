@@ -36,6 +36,18 @@ describe('PhotosGrid', () => {
     expect(srcs).toEqual(['/img/1/400/600', '/img/2/400/600', '/img/3/400/600']);
   });
 
+  it('should mark only the favorite photos', () => {
+    fixture.componentRef.setInput('favoriteIds', new Set(['2']));
+    fixture.detectChanges();
+
+    const cards = Array.from(el.querySelectorAll('app-photo-card'));
+    expect(cards.map((card) => !!card.querySelector('.favorite'))).toEqual([false, true, false]);
+  });
+
+  it('should not mark any photo by default', () => {
+    expect(el.querySelectorAll('.favorite')).toHaveLength(0);
+  });
+
   it('should emit the photo of the clicked card', () => {
     const selected = vi.fn();
     fixture.componentInstance.photoSelected.subscribe(selected);

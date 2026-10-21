@@ -1,4 +1,8 @@
-<app-photos-grid [photos]="photos()" (photoSelected)="addToFavorites($event)" />
+<app-photos-grid
+  [photos]="photos()"
+  [favoriteIds]="favoriteIds()"
+  (photoSelected)="addToFavorites($event)"
+/>
 
 @if (failed()) {
   <div class="status">

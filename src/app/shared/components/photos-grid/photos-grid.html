@@ -1,5 +1,9 @@
 <div class="grid">
   @for (photo of photos(); track photo.id) {
-    <app-photo-card [photo]="photo" (selected)="photoSelected.emit(photo)" />
+    <app-photo-card
+      [photo]="photo"
+      [favorite]="favoriteIds().has(photo.id)"
+      (selected)="photoSelected.emit(photo)"
+    />
   }
 </div>

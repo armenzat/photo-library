@@ -206,6 +206,23 @@ describe('Photos', () => {
       );
     });
 
+    it('should show the favorite badge only on favorite photos', async () => {
+      expect(el.querySelectorAll('.favorite')).toHaveLength(0);
+
+      cardButtons()[1].click();
+      await fixture.whenStable();
+
+      const cards = Array.from(el.querySelectorAll('app-photo-card'));
+      expect(cards.map((card) => !!card.querySelector('.favorite'))).toEqual([false, true]);
+    });
+
+    it('should show the badge on photos that were already favorites', async () => {
+      favorites.add('4');
+      await fixture.whenStable();
+
+      expect(el.querySelectorAll('.favorite')).toHaveLength(1);
+    });
+
     it('should keep the order in which photos were added', async () => {
       cardButtons()[1].click();
       cardButtons()[0].click();

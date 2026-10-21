@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 import { Photo } from '../../../models/photo.model';
 import { PhotosApi } from '../../../services/photos-api';
@@ -8,6 +9,7 @@ const HEIGHT = 600;
 
 @Component({
   selector: 'app-photo-card',
+  imports: [MatIconModule],
   templateUrl: './photo-card.html',
   styleUrl: './photo-card.scss',
 })
@@ -15,6 +17,7 @@ export class PhotoCard {
   private readonly api = inject(PhotosApi);
 
   readonly photo = input.required<Photo>();
+  readonly favorite = input(false);
   readonly selected = output<void>();
 
   protected readonly src = computed(() => this.api.photoUrl(this.photo().id, WIDTH, HEIGHT));
