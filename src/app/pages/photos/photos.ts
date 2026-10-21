@@ -5,11 +5,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { Photo } from '../../models/photo.model';
 import { PhotosApi } from '../../services/photos-api';
+import { PhotosGrid } from '../../shared/components/photos-grid/photos-grid';
 import { InfiniteScroll } from '../../shared/directives/infinite-scroll/infinite-scroll';
 
 @Component({
   selector: 'app-photos',
-  imports: [InfiniteScroll, MatButtonModule, MatProgressSpinnerModule],
+  imports: [InfiniteScroll, MatButtonModule, MatProgressSpinnerModule, PhotosGrid],
   templateUrl: './photos.html',
   styleUrl: './photos.scss',
 })
@@ -25,10 +26,6 @@ export class Photos {
 
   constructor() {
     this.loadMore();
-  }
-
-  protected src(id: string): string {
-    return this.api.photoUrl(id, 400, 600);
   }
 
   protected loadMore(): void {
