@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { Title } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
@@ -11,6 +12,7 @@ describe('routes', () => {
 
   let harness: RouterTestingHarness;
 
+  const pageTitle = () => TestBed.inject(Title).getTitle();
   const routedTag = () => harness.routeNativeElement?.tagName.toLowerCase();
 
   beforeEach(async () => {
@@ -52,4 +54,15 @@ describe('routes', () => {
       expect(routedTag()).toBe('app-not-found');
     },
   );
+  it.each([
+    ['/', 'Photos'],
+    ['/favorites', 'Favorites'],
+    ['/photos/42', 'Photo'],
+    ['/nope', 'Page not found'],
+  ])('should set the page title for %s to %s', async (url, title) => {
+    localStorage.setItem('photo-library:favorites', JSON.stringify(['42']));
+    await harness.navigateByUrl(url);
+
+    expect(pageTitle()).toBe(title);
+  });
 });
