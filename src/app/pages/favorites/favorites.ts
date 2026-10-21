@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink } from '@angular/router';
 
@@ -9,6 +9,7 @@ import { PhotosGrid } from '../../shared/components/photos-grid/photos-grid';
 @Component({
   selector: 'app-favorites',
   imports: [MatButtonModule, PhotosGrid, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './favorites.html',
   styleUrl: './favorites.scss',
 })

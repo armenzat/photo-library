@@ -1,5 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { Photo } from '../../../models/photo.model';
@@ -11,6 +19,7 @@ const HEIGHT = 600;
 @Component({
   selector: 'app-photo-card',
   imports: [MatIconModule, NgOptimizedImage],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './photo-card.html',
   styleUrl: './photo-card.scss',
 })

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import { Photo } from '../../../models/photo.model';
 import { PRIORITY_IMAGE_COUNT } from '../../constants';
@@ -7,6 +7,7 @@ import { PhotoCard } from '../photo-card/photo-card';
 @Component({
   selector: 'app-photos-grid',
   imports: [PhotoCard],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './photos-grid.html',
   styleUrl: './photos-grid.scss',
 })

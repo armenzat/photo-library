@@ -1,5 +1,12 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, linkedSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,6 +22,7 @@ const HEIGHT = 800;
 @Component({
   selector: 'app-photo-detail',
   imports: [MatButtonModule, MatIconModule, NgOptimizedImage, RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './photo-detail.html',
   styleUrl: './photo-detail.scss',
 })

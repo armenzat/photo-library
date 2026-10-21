@@ -1,4 +1,11 @@
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -14,6 +21,7 @@ import { InfiniteScroll } from '../../shared/directives/infinite-scroll/infinite
 @Component({
   selector: 'app-photos',
   imports: [InfiniteScroll, MatButtonModule, MatProgressSpinnerModule, PhotosGrid],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './photos.html',
   styleUrl: './photos.scss',
 })
