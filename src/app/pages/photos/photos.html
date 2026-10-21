@@ -1,9 +1,16 @@
 <div class="grid">
-  @for (placeholder of placeholders; track placeholder) {
-    <div class="placeholder"></div>
+  @for (photo of photos(); track photo.id) {
+    <img [src]="src(photo.id)" [alt]="'Photo ' + photo.id" loading="lazy" />
   }
 </div>
 
-<div class="loader">
-  <mat-spinner diameter="48" />
-</div>
+@if (failed()) {
+  <div class="status">
+    <p>Failed to load photos</p>
+    <button matButton="outlined" (click)="loadMore()">Retry</button>
+  </div>
+} @else if (loading()) {
+  <div class="status">
+    <mat-spinner diameter="48" />
+  </div>
+}
